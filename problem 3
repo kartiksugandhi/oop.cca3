@@ -1,0 +1,60 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    int n, q;
+    cin >> n >> q;
+    cin.ignore(); // ignore newline after numbers
+
+    map<string, string> attributes;  // to store tag-path~attribute = value
+    vector<string> tag_stack;        // to maintain nesting structure
+
+    for (int i = 0; i < n; i++) {
+        string line;
+        getline(cin, line);
+
+        // Check if it's a closing tag
+        if (line.substr(0, 2) == "</") {
+            tag_stack.pop_back();
+        } else {
+            // Remove the angle brackets
+            line = line.substr(1, line.size() - 2);
+
+            stringstream ss(line);
+            string tag_name;
+            ss >> tag_name;
+
+            // Add tag to the current path
+            tag_stack.push_back(tag_name);
+
+            // Build the full tag path (like tag1.tag2)
+            string full_path = "";
+            for (int j = 0; j < tag_stack.size(); j++) {
+                if (j > 0) full_path += ".";
+                full_path += tag_stack[j];
+            }
+
+            // Read the attributes
+            string attr_name, eq, attr_value;
+            while (ss >> attr_name >> eq >> attr_value) {
+                // remove quotes from attr_value
+                attr_value = attr_value.substr(1, attr_value.size() - 2);
+                // store in map
+                attributes[full_path + "~" + attr_name] = attr_value;
+            }
+        }
+    }
+
+    // Answer queries
+    for (int i = 0; i < q; i++) {
+        string query;
+        getline(cin, query);
+        if (attributes.find(query) != attributes.end())
+            cout << attributes[query] << endl;
+        else
+            cout << "Not Found!" << endl;
+    }
+
+    return 0;
+}
+
